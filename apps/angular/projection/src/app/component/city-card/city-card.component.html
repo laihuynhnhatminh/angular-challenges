@@ -1,0 +1,15 @@
+<app-card 
+    [list]="$data()"
+    (addNewItem)="onAddNewItem()"
+    style="background-color: rgba(0, 0, 250, 0.1);"
+>
+    <img src="assets/img/city.png" alt="City" width="200px" cover />
+
+    <ng-template #cardRow let-item>
+        <app-list-item [name]="item.name">
+            <button (click)="onDeleteItem(item.id)" delete>
+                <img class="h-5" src="assets/svg/trash.svg" alt="trash" />
+            </button>
+        </app-list-item>
+    </ng-template>
+</app-card>

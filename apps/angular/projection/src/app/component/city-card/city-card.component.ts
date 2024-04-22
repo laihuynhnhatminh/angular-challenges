@@ -1,30 +1,33 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CityStore } from '../../data-access/city.store';
-import { FakeHttpService } from '../../data-access/fake-http.service';
-import { CardType } from '../../model/card.model';
+import { AsyncPipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CityStore } from '../../data-access';
+import { randomCity } from '../../data-access/fake-http.service';
 import { City } from '../../model/city.model';
+import { DataCardComponentBase, DataStoreBase } from '../../shared';
 import { CardComponent } from '../../ui/card/card.component';
+import { ListItemComponent } from '../../ui/list-item/list-item.component';
 
 @Component({
   selector: 'app-city-card',
-  template: `
-    <app-card [list]="cities()" [type]="cardType"></app-card>
-  `,
+  templateUrl: './city-card.component.html',
   standalone: true,
-  imports: [CardComponent],
+  providers: [
+    {
+      provide: DataStoreBase,
+      useExisting: CityStore,
+    },
+  ],
+  imports: [CardComponent, ListItemComponent, AsyncPipe],
 })
-export class CityCardComponent implements OnInit {
-  cities = signal<City[]>([]);
-  cardType = CardType.CITY;
-
-  constructor(
-    private http: FakeHttpService,
-    private store: CityStore,
-  ) {}
-
-  ngOnInit(): void {
+export class CityCardComponent
+  extends DataCardComponentBase<City>
+  implements OnInit
+{
+  public ngOnInit(): void {
     this.http.fetchCities$.subscribe((c) => this.store.addAll(c));
+  }
 
-    this.cities = this.store.cities$;
+  public override onAddNewItem(): void {
+    this.store.addOne(randomCity());
   }
 }
