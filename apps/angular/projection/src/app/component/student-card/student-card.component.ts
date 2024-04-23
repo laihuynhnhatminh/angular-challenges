@@ -1,40 +1,33 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FakeHttpService } from '../../data-access/fake-http.service';
-import { StudentStore } from '../../data-access/student.store';
-import { CardType } from '../../model/card.model';
+import { StudentStore } from '../../data-access';
+import { randStudent } from '../../data-access/fake-http.service';
 import { Student } from '../../model/student.model';
+import { DataCardComponentBase, DataStoreBase } from '../../shared';
 import { CardComponent } from '../../ui/card/card.component';
+import { ListItemComponent } from '../../ui/list-item/list-item.component';
 
 @Component({
   selector: 'app-student-card',
-  template: `
-    <app-card
-      [list]="students"
-      [type]="cardType"
-      customClass="bg-light-green"></app-card>
-  `,
+  templateUrl: './student-card.component.html',
   standalone: true,
-  styles: [
-    `
-      ::ng-deep .bg-light-green {
-        background-color: rgba(0, 250, 0, 0.1);
-      }
-    `,
+  providers: [
+    {
+      provide: DataStoreBase,
+      useExisting: StudentStore,
+    },
   ],
-  imports: [CardComponent],
+  imports: [CardComponent, ListItemComponent, AsyncPipe],
 })
-export class StudentCardComponent implements OnInit {
-  students: Student[] = [];
-  cardType = CardType.STUDENT;
-
-  constructor(
-    private http: FakeHttpService,
-    private store: StudentStore,
-  ) {}
-
-  ngOnInit(): void {
+export class StudentCardComponent
+  extends DataCardComponentBase<Student>
+  implements OnInit
+{
+  public ngOnInit(): void {
     this.http.fetchStudents$.subscribe((s) => this.store.addAll(s));
+  }
 
-    this.store.students$.subscribe((s) => (this.students = s));
+  public override onAddNewItem(): void {
+    this.store.addOne(randStudent());
   }
 }

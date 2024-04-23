@@ -1,0 +1,11 @@
+<ng-content select="[cover]"></ng-content>
+
+<section>
+    @for (item of list(); track $index) {
+    <ng-container [ngTemplateOutlet]="listItemTmpl()" [ngTemplateOutletContext]="{ $implicit: item }" />
+    }
+</section>
+
+<button class="rounded-sm border border-blue-500 bg-blue-300 p-2" (click)="addNewItem.emit()">
+    Add
+</button>
