@@ -2,11 +2,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ContentChild,
-  EventEmitter,
-  Input,
-  Output,
   TemplateRef,
+  contentChild,
+  input,
+  output,
 } from '@angular/core';
 import { ListItemRefDirective } from '../list-item/list-item-ref.directive';
 
@@ -20,9 +19,9 @@ interface BaseCardData {
     <ng-content></ng-content>
 
     <section>
-      @for (item of list; track $index) {
+      @for (item of list(); track $index) {
         <ng-template
-          [ngTemplateOutlet]="listItemTemplate"
+          [ngTemplateOutlet]="listItemTemplate()"
           [ngTemplateOutletContext]="{ $implicit: item }"></ng-template>
       }
     </section>
@@ -41,11 +40,9 @@ interface BaseCardData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardComponent<T extends BaseCardData> {
-  @Input() list: T[] | null = null;
-  @Input() image: string | null = null;
-
-  @Output() addNewItem = new EventEmitter<void>();
-
-  @ContentChild(ListItemRefDirective, { read: TemplateRef })
-  listItemTemplate!: TemplateRef<{ $implicit: T }>;
+  public list = input<T[]>();
+  public addNewItem = output<void>();
+  public listItemTemplate = contentChild.required(ListItemRefDirective, {
+    read: TemplateRef,
+  });
 }
